@@ -1,5 +1,6 @@
 package life;
 
+import java.io.IOException;
 import java.util.Scanner;
 
 /**
@@ -11,26 +12,38 @@ public class Main {
      */
     static int n;
     /**
-     * Seed for random value.
-     */
-    static long s;
-    /**
      * Number of generations.
      */
-    static int m;
+    static int m = 10;
 
     /**
      * The entry point of application.
      *
      * @param args the input arguments - not use
      */
-    public static void main(String[] args) {
+    public static void main(String[] args) throws InterruptedException {
         userInput();
-        Universe universe = new Universe(n, s);
+        Universe universe = new Universe(n);
         for (int i = 0; i < m; i++) {
-            universe = new Generation(universe).getNewUniverse();
+            clearScreen();
+            universe.printStats();
+            universe.printUniverse();
+            universe.generateNewUniverse();
+            Thread.sleep(1000);
         }
-        universe.printUniverse();
+    }
+
+    private static void clearScreen() {
+        try {
+            if (System.getProperty("os.name").contains("Windows"))
+                new ProcessBuilder("cmd", "/c", "cls").inheritIO().start().waitFor();
+            else {
+                System.out.print("\033[H\033[2J");
+                System.out.flush();
+            }
+        } catch (IOException | InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -39,7 +52,6 @@ public class Main {
     private static void userInput() {
         Scanner sc = new Scanner(System.in);
         n = sc.nextInt();
-        s = sc.nextLong();
-        m = sc.nextInt();
+        sc.close();
     }
 }

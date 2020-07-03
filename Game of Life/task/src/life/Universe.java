@@ -6,69 +6,123 @@ import java.util.Random;
  * The type Universe.
  */
 public class Universe {
-    private char[][] universe;
+    private final int size;
+    private boolean[][] universe;
+    private int counterGen;
 
     /**
      * Instantiates a new Universe.
      *
      * @param size the size
-     * @param seed the seed
      */
-    Universe(int size, long seed) {
-        this.universe = new char[size][size];
-        randomFillUniverse(seed);
+    Universe(int size) {
+        this.size = size;
+        this.universe = new boolean[size][size];
+        counterGen = 1;
+        randomFillUniverse();
     }
 
     /**
-     * Creates an empty new Universe.
+     * Fills the Universe randomly.
      */
-    Universe() {
-        this.universe = new char[0][0];
-    }
+    private void randomFillUniverse() {
+        Random random = new Random();
 
-    /**
-     * Fills the Universe randomly, depending on the seed.
-     *
-     * @param seed for random value
-     */
-    private void randomFillUniverse(long seed) {
-        Random random = new Random(seed);
-        int n = universe.length;
-
-        for (int i = 0; i < n; i++) {
-            for (int j = 0; j < n; j++) {
-                universe[i][j] = random.nextBoolean() ? 'O' : ' ';
+        for (int i = 0; i < size; i++) {
+            for (int j = 0; j < size; j++) {
+                universe[i][j] = random.nextBoolean();
             }
         }
+    }
+
+    /**
+     * Populates a new generation into the universe.
+     */
+    void generateNewUniverse() {
+        boolean[][] newU = new boolean[size][size];
+
+        for (int i = 0; i < size; i++) {
+            for (int j = 0; j < size; j++) {
+                newU[i][j] = isWillLife(i, j);
+            }
+        }
+
+        universe = newU;
+        counterGen++;
+    }
+
+    /**
+     * Determines whether the cell will live.
+     *
+     * @param i the line of the universe
+     * @param j the column of the universe
+     * @return boolean value that will live or not
+     */
+    private boolean isWillLife(int i, int j) {
+        int n = size;
+        boolean isLife = false;
+        int count = 0;
+
+        if (universe[i][(j + n - 1) % n]) {
+            count++;
+        }
+        if (universe[i][(j + 1) % n]) {
+            count++;
+        }
+        if (universe[(i + n - 1) % n][j]) {
+            count++;
+        }
+        if (universe[(i + 1) % n][j]) {
+            count++;
+        }
+        if (universe[(i + n - 1) % n][(j + n - 1) % n]) {
+            count++;
+        }
+        if (universe[(i + 1) % n][(j + 1) % n]) {
+            count++;
+        }
+        if (universe[(i + 1) % n][(j + n - 1) % n]) {
+            count++;
+        }
+        if (universe[(i + n - 1) % n][(j + 1) % n]) {
+            count++;
+        }
+
+        if (!universe[i][j] && count == 3) {
+            isLife = true;
+        }
+
+        if (universe[i][j] && (count == 2 || count == 3)) {
+            isLife = true;
+        }
+
+        return isLife;
+    }
+
+    void printStats() {
+        System.out.printf("Generation #%d%n", counterGen);
+
+        int counterO = 0;
+        for (boolean[] booleans : universe) {
+            for (boolean b : booleans) {
+                if (b) {
+                    counterO++;
+                }
+            }
+        }
+        System.out.printf("Alive: %d%n", counterO);
+
     }
 
     /**
      * Print universe.
      */
     void printUniverse() {
-        for (char[] chars : universe) {
-            for (char c : chars) {
-                System.out.print(c);
+        for (boolean[] booleans : universe) {
+            for (boolean b : booleans) {
+                System.out.print(b ? 'O' : ' ');
             }
             System.out.println();
         }
-    }
-
-    /**
-     * Get universe char [ ] [ ].
-     *
-     * @return the char [ ] [ ]
-     */
-    char[][] getUniverse() {
-        return universe;
-    }
-
-    /**
-     * Sets universe.
-     *
-     * @param universe the universe
-     */
-    void setUniverse(char[][] universe) {
-        this.universe = universe;
     }
 }
